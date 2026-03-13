@@ -34,5 +34,3 @@ An intelligent dashboard for analyzing personal transaction data using machine l
 - Anomaly detection
 - Dashboard development
 - Full ML pipeline
-
-Recruiters like projects combining ML + visualization + application.
