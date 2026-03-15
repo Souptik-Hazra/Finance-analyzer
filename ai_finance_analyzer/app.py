@@ -46,20 +46,21 @@ else:
 if df is not None:
     st.subheader("Transactions")
     st.dataframe(df, width='stretch', hide_index=True)
-    col1, col2, col3=st.columns(3)
+    # Move pie chart to its own row
+    st.subheader("Category Distribution")
+    cat=df.groupby("Category")['Amount'].sum().reset_index()
+    fig=px.pie(cat, names="Category", values="Amount", color_discrete_sequence=px.colors.sequential.RdBu, hole=0.4)
+    fig.update_traces(textinfo='percent+label', pull=[0.05]*len(cat))
+    fig.update_layout(margin=dict(t=0, b=0, l=0, r=0), showlegend=True)
+    st.plotly_chart(fig, width='stretch')
+    # Expense and Monthly Trend charts in next row
+    col1, col2=st.columns(2)
     with col1:
-        st.subheader("Category Distribution")
-        cat=df.groupby("Category")['Amount'].sum().reset_index()
-        fig=px.pie(cat, names="Category", values="Amount", color_discrete_sequence=px.colors.sequential.RdBu, hole=0.4)
-        fig.update_traces(textinfo='percent+label', pull=[0.05]*len(cat))
-        fig.update_layout(margin=dict(t=0, b=0, l=0, r=0), showlegend=True)
-        st.plotly_chart(fig, width='stretch')
-    with col2:
         st.subheader("Expense Distribution")
         fig2=px.histogram(df, x="Amount", nbins=20, color_discrete_sequence=["#636EFA"], marginal="box")
         fig2.update_layout(margin=dict(t=0, b=0, l=0, r=0), bargap=0.2)
         st.plotly_chart(fig2, width='stretch')
-    with col3:
+    with col2:
         st.subheader("Monthly Trend")
         df['Month']=df['Date'].dt.to_period('M')
         monthly=df.groupby('Month')['Amount'].sum().reset_index()
