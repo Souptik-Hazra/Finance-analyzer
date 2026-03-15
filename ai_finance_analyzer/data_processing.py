@@ -1,12 +1,12 @@
 import pandas as pd
 
 def load_data(file):
-    df = pd.read_csv(file)
-    df['Date'] = pd.to_datetime(df['Date'])
+    df=pd.read_csv(file)
+    df['Date']=pd.to_datetime(df['Date'])
     return df
 
 def categorize_expense(description):
-    description = description.lower()
+    description=description.lower()
     if "swiggy" in description or "restaurant" in description or "groceries" in description:
         return "Food"
     if "uber" in description or "petrol" in description:
@@ -22,5 +22,5 @@ def categorize_expense(description):
     return "Other"
 
 def add_categories(df):
-    df["Category"] = df["Description"].apply(categorize_expense)
+    df['Category']=df['Description'].apply(categorize_expense)
     return df
