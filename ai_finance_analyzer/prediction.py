@@ -1,3 +1,6 @@
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+import os
+import joblib
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor
@@ -26,9 +29,36 @@ def predict_future_expense(df, lookback_days=60):
     feature_cols += cat_cols
     X=df.loc[y_no_out.index, feature_cols]
     y=y_no_out
-    from sklearn.ensemble import RandomForestRegressor
-    model=RandomForestRegressor(n_estimators=100, random_state=42)
-    model.fit(X, y)
+    model_path="finance_rf_model.pkl"
+    metrics_path="finance_rf_metrics.txt"
+    if os.path.exists(model_path):
+        model=joblib.load(model_path)
+        metrics=None
+        if os.path.exists(metrics_path):
+            with open(metrics_path, "r") as f:
+                metrics=f.read()
+    else:
+        from sklearn.ensemble import RandomForestRegressor
+        model=RandomForestRegressor(
+            n_estimators=200,
+            max_depth=8,
+            min_samples_split=4,
+            min_samples_leaf=2,
+            max_features='sqrt',
+            random_state=42
+        )
+        model.fit(X, y)
+        joblib.dump(model, model_path)
+        # Calculate metrics
+        y_pred=model.predict(X)
+        mae=mean_absolute_error(y, y_pred)
+        rmse=np.sqrt(mean_squared_error(y, y_pred))
+        r2=r2_score(y, y_pred)
+        metrics=f"MAE: {mae:.2f}\nRMSE: {rmse:.2f}\nR2: {r2:.2f}"
+        with open(metrics_path, "w") as f:
+            f.write(metrics)
+    if metrics:
+        print("RandomForest Metrics:\n"+metrics)
     # Save the exact feature columns used for fitting
     fit_feature_cols=list(X.columns)
     last_row=df.iloc[-1]
